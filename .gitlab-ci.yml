@@ -1,0 +1,80 @@
+stages:
+  - build
+  - test
+  - jacoco
+  - spotbugs
+  - frontend_build
+
+cache:
+  paths:
+    - .m2/repository
+    - frontend/node_modules/
+
+variables:
+  SPRING_PROFILES_ACTIVE: test
+  DB_HOST: localhost
+  DB_PORT: 5432
+  DB_NAME: yourdb
+  DB_USER: yourusername
+  DB_PASS: yourpassword
+
+before_script:
+  - cd "$CI_PROJECT_DIR"
+
+build:
+  stage: build
+  script:
+    - cd backend
+    - mvn compile
+
+test:
+  stage: test
+  script:
+    - cd backend
+    - mvn clean test
+  artifacts:
+    when: always
+    paths:
+      - backend/target/surefire-reports/
+    reports:
+      junit: backend/target/surefire-reports/*.xml
+
+jacoco:
+  stage: jacoco
+  script:
+    - cd backend
+    - mvn verify
+  artifacts:
+    paths:
+      - backend/target/site/jacoco/
+    expire_in: 1 week
+
+spotbugs:
+  stage: spotbugs
+  script:
+    - cd backend
+    - mvn spotbugs:check
+  artifacts:
+    paths:
+      - backend/target/spotbugsXml.xml
+    expire_in: 1 week
+
+frontend_build:
+  stage: frontend_build
+  script:
+    - cd frontend
+    - npm ci 
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/build/
+    expire_in: 1 week
+
+frontend_lint:
+  stage: test
+  script:
+    - cd frontend
+    - npm ci
+    - npm run lint
+    - npm run format
+

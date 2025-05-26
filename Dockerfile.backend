@@ -1,0 +1,12 @@
+FROM maven:3.8.5 AS build
+RUN apt-get update && apt-get install -y openjdk-21-jdk
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
+
+FROM openjdk:21-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 2800
+ENTRYPOINT ["java", "-jar", "app.jar"]
