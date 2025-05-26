@@ -1,4 +1,3 @@
-# TEAM PROJECT 38
 # Overview
 This project is a Software Repository designed to store, manage, and retrieve assets efficiently. The system is built using Spring Boot for the backend and React for the frontend, with PostgreSQL as the database.
 
